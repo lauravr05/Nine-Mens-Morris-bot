@@ -1,7 +1,10 @@
+from Muehle_AI.Player import Player
+
 
 class Board:
 
     def __init__(self):
+    #TODO documentation for parameters
         self.positions = self.initialise_empty_board()
         self.adjList = self.create_adj_list()
         self.millList = self.create_mill_list()
@@ -72,54 +75,79 @@ class Board:
             i=i+1
 
 
-    def set_piece(self, player, position):
-        self.positions[position] = player
-        self.check_mill(player)
+    def set_piece(self, player : Player, position) -> bool:
+        #TODO implement check if position is still available
+        if self.positions[position] == 0:
+            self.positions[position] = player.ID
+            print("piece placed at position", position)
+            player.pieces_in_hand -= 1
+            player.pieces_on_board += 1
+            return True
+        else:
+            print("Position is already occupied. Choose another position.")
+            return False
 
 
-    def move_piece(self, player, fromPos, toPos) :
-        neighbours = self.adjList[fromPos]
-        if self.positions[fromPos] != player:
-            print ("invalid, you do not occupy this position")
-            return
-        if toPos in neighbours:
-            if self.positions[toPos] != 0:
-                print("invalid move, position is occupied.")
-                return
-            else :
+
+    def apply_move(self, player : Player, fromPos, toPos) :
                 self.positions[fromPos] = 0
-                self.positions[toPos] = player
-                self.check_mill(player)
-        else :
-            print("invalid move, target position not in reach.")
-            return
+                self.positions[toPos] = player.ID
 
 
-    def check_mill(self, player):
+    def check_valid_move(self, player : Player, fromPos, toPos) -> bool:
+            neighbours = self.adjList[fromPos]
+            if toPos not in neighbours:
+                print("invalid move, target position not in reach.")
+                return False
+            elif self.positions[fromPos] != player.ID:
+                print ("invalid, you do not occupy this from-position")
+                return False
+            elif self.positions[toPos] != 0:
+                print("invalid move, target position is occupied.")
+                return False
+            return True
+
+
+    def check_valid_fly_move(self, player : Player, fromPos, toPos) -> bool:
+
+        if player.state == 2:  # flying
+            if self.positions[toPos] != 0:
+                print("invalid move, target is occupied.")
+                return False
+            if self.positions[fromPos] != player.ID:
+                print("you don't occupy this from-position.")
+                return False
+            return True
+
+
+
+
+    def check_mill(self, player : Player) -> bool:
+        #TODO split mill checking and millStates updating
         for mill in self.millList:
-            if self.positions[mill[0]] == player and self.positions[mill[1]] == player and self.positions[mill[2]] == player:
+            if self.positions[mill[0]] == player.ID and self.positions[mill[1]] == player.ID and self.positions[mill[2]] == player.ID:
                 # mill is present
                 if self.millStates[mill] is None:
+
                     # mill is not yet created/assigned to player
-                    print("Mill created! Player", player, "on positions:", mill)
+                    print("Mill created! Player", player.ID, "on positions:", mill)
                     self.print_board()
 
-                    #set created mill's state to True
-                    self.millStates[mill] = player
+                    #Assign created mill to player ID
+                    self.millStates[mill] = player.ID
                     print(self.millStates)
-
-                    #player may remove piece of opponent
-                    self.user_removal_input(player)
+                    return True
 
 
-            elif self.millStates[mill] == player:
+            elif self.millStates[mill] == player.ID:
                 #mill was set to true, but mill is no longer present
-                print("mill ", mill," was opened by player ", player)
+                print("mill ", mill," was opened by player " f"{self.player_name(player)}")
                 self.millStates[mill] = None
-        return
+        return False
 
-# TODO if all opponents pieces are in mills, they are allowed to be removed
-    def remove_piece(self, position, player) -> bool:
+
+
+    def remove_piece(self, position, player : Player) -> bool:
         """
         Attempts to remove an opponent's piece from the given position.
         Players may not :
@@ -133,31 +161,24 @@ class Board:
         Returns:
             bool: True if removal was successful, False otherwise.
         """
-        opponent = player*-1
+        opponentID = player.ID*-1
         allInMills = True
+        # Check if all opponent pieces are in mills, these may not be removed.
         for pos, piece in enumerate(self.positions):
-            if piece == opponent and not self.is_pos_in_closed_mill(pos, opponent):
+            if piece == opponentID and not self.is_pos_in_closed_mill(pos, opponentID):
                 allInMills = False
                 break
 
-        if self.positions[position] == opponent:
-            if allInMills or not self.is_pos_in_closed_mill(position, opponent):
+        if self.positions[position] == opponentID:
+            if allInMills or not self.is_pos_in_closed_mill(position, opponentID):
                 self.positions[position] = 0
+                player.pieces_on_board -= 1
                 print(f"{self.player_name(player)} removed piece from position", position)
                 return True
         print("Invalid move. This position is either not occupied by opponent or is part of a mill. \nTry another position (0-23)")
         return False
 
 
-    def user_removal_input(self, player):
-        print("Please select an opponent piece to remove")
-        while True:
-            try:
-                position = int(input())
-                if self.remove_piece(position, player):
-                    break #valid removal, exit loop.
-            except ValueError:
-                print("This is not a number. Try again")
 
 
     def is_pos_in_closed_mill(self, position, opponent):
@@ -166,18 +187,25 @@ class Board:
                 return True
         return False
 
+
+
+
+
     # helper method for player printing
     def player_name(self, player):
-        return "Player 1" if player == 1 else "Player 2"
+        return "Player 1" if player.ID == 1 else "Player 2"
 
 
-board = Board()
-board.set_piece(-1, 5)
-board.set_piece(1, 8)
-board.set_piece(1, 6)
-board.set_piece(1, 7)
-board.user_removal_input(-1)
-board.print_board()
+
+# board = Board()
+# p1 = Player(1)
+# p2 = Player(-1)
+# board.set_piece(p2, 5)
+# board.set_piece(p1, 8)
+# board.set_piece(p1, 6)
+# board.set_piece(p1, 7)
+# board.user_removal_input(p2)
+# board.print_board()
 
 
 
