@@ -1,6 +1,6 @@
 #TODO Should be singleton, only a single game can be running at once.
 
-from Muehle_AI.AI_Player import AI_Player
+from Muehle_AI.AIPlayer import AIPlayer
 from Muehle_AI.Board import Board
 from Muehle_AI.Player import Player
 
@@ -19,7 +19,7 @@ class Game :
         self.board = Board()
         self.p1 = Player(1)
         # self.p2 = Player(-1)
-        self.p2 = AI_Player(-1, self.board)
+        self.p2 = AIPlayer(-1, self.board)
         self.currentPlayer = self.p1
 
 
@@ -44,7 +44,7 @@ class Game :
             player = self.currentPlayer
 
             #If bot: choose move
-            if isinstance(player, AI_Player):
+            if isinstance(player, AIPlayer):
                 move = player.random_placement(board)
                 board.set_piece(player, move)
 
@@ -88,7 +88,7 @@ class Game :
             player = self.currentPlayer
 
             if player.state == 1:
-                if isinstance(player, AI_Player):
+                if isinstance(player, AIPlayer):
                     from_pos, to_pos = player.random_move(board)
                     board.apply_move(player, from_pos, to_pos)
 
