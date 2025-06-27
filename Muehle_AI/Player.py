@@ -34,3 +34,4 @@ class Player:
         else:
             self.state = 1  # Moving
 
+
