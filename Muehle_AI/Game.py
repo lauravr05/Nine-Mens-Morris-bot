@@ -1,4 +1,6 @@
-#Should be singleton, only a single game can be running at once.
+#TODO Should be singleton, only a single game can be running at once.
+
+from Muehle_AI.AIPlayer import AIPlayer
 from Muehle_AI.Board import Board
 from Muehle_AI.Player import Player
 
@@ -14,10 +16,11 @@ class Game :
         :param p1: initialise with 1
         :param p2: initialise with -1
         """
-        self.p1 = Player(1)
-        self.p2 = Player(-1)
-        self.currentPlayer = self.p1
         self.board = Board()
+        self.p1 = Player(1)
+        # self.p2 = Player(-1)
+        self.p2 = AIPlayer(-1, self.board)
+        self.currentPlayer = self.p1
 
 
     def start_game(self):
@@ -40,14 +43,20 @@ class Game :
         while self.p1.pieces_in_hand > 0 or self.p2.pieces_in_hand > 0:
             player = self.currentPlayer
 
-            #Player input to decide position of piece to place.
-            while True:
-                position = self.get_user_input(
-                    f"{self.player_name(player)}'s turn. Choose position to place a piece ({player.pieces_in_hand} left to place)."
-                )
-                #Place piece
-                if board.set_piece(player, position):
-                    break
+            #If bot: choose move
+            if isinstance(player, AIPlayer):
+                move = player.random_placement(board)
+                board.set_piece(player, move)
+
+            #If player: Player input to decide position of piece to place.
+            else:
+                while True:
+                    position = self.get_user_input(
+                        f"{self.player_name(player)}'s turn. Choose position to place a piece ({player.pieces_in_hand} left to place)."
+                    )
+                    #Place piece
+                    if board.set_piece(player, position):
+                        break
 
             #Check for any formed mills
             if board.check_mill(player):
@@ -74,29 +83,43 @@ class Game :
             """
         board = self.board
 
+
         while not self.p1.has_lost and not self.p2.has_lost:
             player = self.currentPlayer
 
             if player.state == 1:
+                if isinstance(player, AIPlayer):
+                    from_pos, to_pos = player.random_move(board)
+                    board.apply_move(player, from_pos, to_pos)
+
                 while True:
-                    # Get user input
-                    fromPos = self.get_user_input("Select a piece to move.")
-                    toPos = self.get_user_input("Select piece destination.")
+                    while True:
+                        # Get user input
+                        from_pos = self.get_user_input("Select a piece to move.")
+                        if self.valid_moves_exist(from_pos):
+                            break
+                        # No valid move for the chosen piece; ask for new input
+                        print("No possible moves from here, try another piece.")
+                        continue
+
+
+                    board.get_neighbours(from_pos)
+                    to_pos = self.get_user_input("Select piece destination.")
 
                 # Check if given move is valid, else ask for different input
-                    if board.check_valid_move(player, fromPos, toPos):
-                        board.apply_move(player, fromPos, toPos)
+                    if board.check_valid_move(player, from_pos, to_pos):
+                        board.apply_move(player, from_pos, to_pos)
                         break
 
             elif player.state == 2:
                 while True:
                     # Get user input
-                    fromPos = self.get_user_input("Select a piece to move.")
-                    toPos = self.get_user_input("Select piece destination.")
+                    from_pos = self.get_user_input("Select a piece to move.")
+                    to_pos = self.get_user_input("Select piece destination.")
 
                     # Check if given move is valid, else ask for different input
-                    if board.check_valid_fly_move(player, fromPos, toPos):
-                        board.apply_move(player, fromPos, toPos)
+                    if board.check_valid_fly_move(player, from_pos, to_pos):
+                        board.apply_move(player, from_pos, to_pos)
                         break
 
             # Update board and player state, switch player
@@ -109,12 +132,20 @@ class Game :
         return
 
 
+
     def game_over(self):
         if self.p1.has_lost:
             print(f"Player {self.player_name(self.p2)} wins!")
         else:
             print(f"Player {self.player_name(self.p1)} wins!")
 
+    def valid_moves_exist(self, pos) -> bool:
+        neighbours = self.board.get_neighbours(pos)
+        for target in neighbours:
+            if self.board.positions[target] == 0:
+                move = (pos, target)
+                return True
+        return False
 
 
 
@@ -154,3 +185,4 @@ class Game :
 
 game = Game()
 game.start_game()
+print(game.p2.ID)

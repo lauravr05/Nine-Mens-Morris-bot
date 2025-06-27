@@ -18,7 +18,7 @@ class Board:
         return positions
 
     def create_adj_list(self):
-        # access neighbours: neighbors = self.adjList(position)
+        # access neighbours: neighbors = self.adjList[position]
         adjList = {
             0: [1, 9],
             1: [0, 2, 4],
@@ -46,6 +46,13 @@ class Board:
             23: [14, 22]
         }
         return adjList
+
+    def get_neighbours(self, position) :
+        if position < 0 or position > 23:
+            print("invalid position")
+            return None
+        neighbours = self.adjList[position]
+        return neighbours
 
     def create_mill_list(self):
         millList = [
