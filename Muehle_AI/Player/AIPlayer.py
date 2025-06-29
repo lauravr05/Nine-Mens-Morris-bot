@@ -11,9 +11,8 @@ Plan:
     Bot calculates all possible game moves for the whole board and chooses the path that maximises
     its score for the duration of the whole game
 """
-from Muehle_AI.AIStrategy import AIStrategy, RandomAI, GreedyAI, MinimaxAI
-from Muehle_AI.Board import Board
-from Muehle_AI.Player import Player
+from Muehle_AI.Player.AIStrategy import AIStrategy, RandomAI
+from Muehle_AI.Player.Player import Player
 
 
 class AIPlayer(Player) :
@@ -23,7 +22,7 @@ class AIPlayer(Player) :
     def __init__(self, ID : int, board, strategy : AIStrategy = None):
         super().__init__(ID)
         self.board = board
-        self.strategy = strategy if strategy else RandomAI(ID)
+        self.strategy = strategy if strategy else RandomAI()
 
     def get_placement(self, board):
         return self.strategy.get_placement(board)
@@ -45,16 +44,16 @@ class AIPlayer(Player) :
 
 
 
-board = Board()
-p1 = Player(1)
-ai_random = AIPlayer(-1, board)
-# ai_greedy = AI_Player(-1, board, GreedyAI())
-# ai_minimax = AI_Player(-1, board, MinimaxAI())
-
-board.set_piece(ai_random, 2)
-board.set_piece(ai_random,1)
-
-fr, to = ai_random.get_move(board)
+# board = Board()
+# p1 = Player(1)
+# ai_random = AIPlayer(-1, board)
+# # ai_greedy = AI_Player(-1, board, GreedyAI())
+# # ai_minimax = AI_Player(-1, board, MinimaxAI())
+#
+# board.set_piece(ai_random, 2)
+# board.set_piece(ai_random,1)
+#
+# fr, to = ai_random.get_move(board)
 
 
 

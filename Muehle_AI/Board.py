@@ -1,4 +1,4 @@
-from Muehle_AI.Player import Player
+from Muehle_AI.Player.Player import Player
 
 
 class Board:

@@ -68,7 +68,7 @@ class AIStrategy(ABC):
     def get_placement(self, board): pass
 
     @abstractmethod
-    def remove_opponent_piece(self, board, player): pass
+    def get_opponent_piece_to_remove(self, board, player): pass
 
 
 #----------------------------------------------------
@@ -109,8 +109,6 @@ class RandomAI(AIStrategy):
         opponent_pieces = self.get_opponent_pieces(board)
         position = random.choice(opponent_pieces)
         return position
-
-
 
 
 #-----------------------------------------------------------

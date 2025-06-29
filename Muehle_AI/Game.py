@@ -1,8 +1,9 @@
 #TODO Should be singleton, only a single game can be running at once.
 
-from Muehle_AI.AIPlayer import AIPlayer
+from Muehle_AI.Player.AIPlayer import AIPlayer
 from Muehle_AI.Board import Board
-from Muehle_AI.Player import Player
+from Muehle_AI.UI.GUI import GUI
+from Muehle_AI.Player.Player import Player
 
 
 class Game :
@@ -17,6 +18,7 @@ class Game :
         :param p2: initialise with -1
         """
         self.board = Board()
+        self.gui = GUI(self.board)
         self.p1 = Player(1)
         # self.p2 = Player(-1)
         self.p2 = AIPlayer(-1, self.board)
@@ -45,7 +47,7 @@ class Game :
 
             #If bot: choose move
             if isinstance(player, AIPlayer):
-                move = player.random_placement(board)
+                move = player.get_placement(board)
                 board.set_piece(player, move)
 
             #If player: Player input to decide position of piece to place.
@@ -161,19 +163,19 @@ class Game :
         return "Player 1" if player.ID == 1 else "Player 2"
 
 
-    def get_user_input(self, prompt : str = "Enter a position: ") -> int:
-        print(prompt)
-        min_val = 0
-        max_val = 23
-        while True:
-            try:
-                position = int(input())
-                if position < min_val or position > max_val:
-                    print("Please enter a valid position (range 0-23).")
-                    continue
-                return position
-            except ValueError:
-                print("This is not a number. Try again")
+    # def get_user_input(self, prompt : str = "Enter a position: ") -> int:
+    #     print(prompt)
+    #     min_val = 0
+    #     max_val = 23
+    #     while True:
+    #         try:
+    #             position = int(input())
+    #             if position < min_val or position > max_val:
+    #                 print("Please enter a valid position (range 0-23).")
+    #                 continue
+    #             return position
+    #         except ValueError:
+    #             print("This is not a number. Try again")
 
 
     def handleMill(self, player):
@@ -184,5 +186,10 @@ class Game :
                 break
 
 game = Game()
+game.gui.window.mainloop()
 game.start_game()
+
+
 print(game.p2.ID)
+
+# TODO LEFT OFF AT TROUBLE WITH GUI MAINLOOP BLOCKING EVENTS

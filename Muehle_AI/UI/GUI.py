@@ -1,9 +1,6 @@
 from tkinter import *
 from PIL import Image, ImageTk
 
-from Muehle_AI.Board import Board
-from Muehle_AI.Player import Player
-
 
 class GUI:
 
@@ -14,8 +11,8 @@ class GUI:
         self.window_height = 900
 
         # Load images for background
-        self.bg_image = Image.open("woodenbg.png")
-        self.board_image = Image.open("Board.png")
+        self.bg_image = Image.open("../Muehle_AI/Images/woodenbg.png")
+        self.board_image = Image.open("../Muehle_AI/Images/Board.png")
 
 
         self.window = Tk()
@@ -32,7 +29,7 @@ class GUI:
         self.window.bind('<Configure>', self.throttled_resize)
 
 
-        self.window.mainloop()
+        # self.window.mainloop()
 
 
 
@@ -167,10 +164,10 @@ class GUI:
         )
 
 
-board = Board()
-p1 = Player(-1)
-board.set_piece(p1, 0)
-gui = GUI(board)
+# board = Board()
+# p1 = Player(-1)
+# board.set_piece(p1, 0)
+# gui = GUI(board)
 
 
 
