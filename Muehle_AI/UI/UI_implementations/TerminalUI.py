@@ -2,8 +2,10 @@ from Muehle_AI.UI.AbstractUI import AbstractUI
 
 
 class TerminalUI(AbstractUI):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, board):
+        self.board = board
+
+    def start_ui(self): pass
 
     def get_user_input(self, prompt : str = "Enter a position: ") -> int:
             print(prompt)
@@ -19,6 +21,5 @@ class TerminalUI(AbstractUI):
                 except ValueError:
                     print("This is not a number. Try again")
 
-    def display_board(self, board):
-        #TODO is this right?
-        board.print_board()
+    def display_board(self):
+        self.board.print_board()

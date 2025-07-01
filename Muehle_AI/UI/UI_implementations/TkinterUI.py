@@ -1,8 +1,14 @@
+import os
+import threading
 from tkinter import *
 from PIL import Image, ImageTk
 
+from Muehle_AI.Board import Board
+from Muehle_AI.Player.Player import Player
+from Muehle_AI.UI.AbstractUI import AbstractUI
 
-class GUI:
+
+class TkinterUI(AbstractUI):
 
     def __init__(self, board):
         self.board = board
@@ -10,10 +16,15 @@ class GUI:
         self.window_width = 1300
         self.window_height = 900
 
-        # Load images for background
-        self.bg_image = Image.open("../Muehle_AI/Images/woodenbg.png")
-        self.board_image = Image.open("../Muehle_AI/Images/Board.png")
 
+        # Get the directory containing TkinterUI.py
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # Navigate to the Images directory
+        images_dir = os.path.join(os.path.dirname(os.path.dirname(current_dir)), "Images")
+
+        # Load images using absolute paths
+        self.bg_image = Image.open(os.path.join(images_dir, "woodenbg.png"))
+        self.board_image = Image.open(os.path.join(images_dir, "Board.png"))
 
         self.window = Tk()
         self.window.geometry("1300x900")
@@ -22,15 +33,26 @@ class GUI:
         self.canvas = Canvas(self.window)
         self.canvas.pack(fill="both", expand=True)
 
+        self.instruction_text = StringVar()
+        self.instruction_text.set("Click position to place a piece")
+        self.instructionLabel = Label(self.canvas, textvariable=self.instruction_text, font=("Arial", 20), bg="burlywood3")
+        self.instructionLabel.pack(pady=15)
+
+
         self.position_coords = self.define_position_coords()
-        self.draw_board()
+        self.display_board()
 
         self.resize_job = None
         self.window.bind('<Configure>', self.throttled_resize)
 
+        self.get_user_input()
 
-        # self.window.mainloop()
 
+        self.window.mainloop()
+
+
+    # def start_ui(self):
+    #     self.window.mainloop()
 
 
     def define_position_coords(self):
@@ -63,7 +85,7 @@ class GUI:
         return position_coords
 
 
-    def draw_board(self, event=None):
+    def display_board(self, event=None):
         self.canvas.delete("all")
 
         # Get current window size
@@ -94,10 +116,14 @@ class GUI:
 
         self.draw_all_pieces()
 
+        self.canvas.update()
+        print("Board updated")
+
 
 
 
     def draw_all_pieces(self):
+        print("Drawing pieces")
         for position, value in enumerate(self.board.positions):
             if value == 1:
                 self._render_piece(position, colour="floral white")
@@ -123,7 +149,7 @@ class GUI:
     def throttled_resize(self, event):
         if self.resize_job is not None:
             self.window.after_cancel(self.resize_job)
-        self.resize_job = self.window.after(100, self.draw_board)
+        self.resize_job = self.window.after(100, lambda: self.display_board())
 
 
 
@@ -163,11 +189,65 @@ class GUI:
             width=4
         )
 
+    def get_user_input(self, prompt : str = "Enter a position: ") -> int:
+        prompt = "Choose a position: "
+        print(prompt)
 
-# board = Board()
-# p1 = Player(-1)
-# board.set_piece(p1, 0)
-# gui = GUI(board)
+        position = IntVar()
+        self.canvas.bind("<Button-1>", self.on_click)
+
+        self.window.wait_variable(position)
+        return position.get()
+
+
+    def on_click(self, event):
+        """
+        Called when the mouse is clicked on the canvas. Calls get_position to check which
+        position the click is on and initialises the required action.
+
+        :param event: mouseclick
+        :return: None
+        """
+        window_x,window_y = event.x, event.y
+        board_x = window_x - self.x_board
+        board_y = window_y - self.y_board
+
+
+        #TODO loop for when input is invalid?
+        pos = self.get_position(board_x, board_y)
+        if pos is not None:
+            print(f"You clicked at ({pos})")
 
 
 
+    def get_position(self, x, y) -> int:
+        """
+        Based on the location of the mouse click, returns a position on the board
+
+        :param x: x coord of the mouseclick
+        :param y: y coord of the mouseclick
+        :return: int position on the board
+        """
+        for idx, (rel_x, rel_y) in enumerate(self.position_coords):
+            radius = self.board_size * 0.05
+            posx = rel_x * self.board_size
+            posy = rel_y * self.board_size
+            if posx - radius <= x <= posx + radius and posy - radius <= y <= posy + radius:
+                return idx
+        print("Invalid position")
+        return None
+
+    def display_instruction(self, instruction : str = "Click position to place a piece "):
+        self.instructionLabel.config(text=instruction)
+        self.instructionLabel.pack()
+        self.window.update()
+        print("Instruction updated")
+
+
+
+
+
+
+board = Board()
+tkinterUI = TkinterUI(board)
+get_user_input = tkinterUI.get_user_input

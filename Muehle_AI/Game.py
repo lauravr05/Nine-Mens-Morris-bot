@@ -1,9 +1,12 @@
 #TODO Should be singleton, only a single game can be running at once.
+import threading
 
 from Muehle_AI.Player.AIPlayer import AIPlayer
 from Muehle_AI.Board import Board
-from Muehle_AI.UI.GUI import GUI
+from Muehle_AI.UI import AbstractUI
 from Muehle_AI.Player.Player import Player
+from Muehle_AI.UI.UI_implementations.TkinterUI import TkinterUI
+from Muehle_AI.UI.UI_implementations.TerminalUI import TerminalUI
 
 
 class Game :
@@ -12,13 +15,13 @@ class Game :
         # 0 = placing pieces, initial state when beginning game
         # 1 = moving pieces; state after players have both places 9 pieces
         # 2 = flying; state after at least 1 player has 3 or less pieces
-    def __init__(self):
+    def __init__(self, ui : AbstractUI):
         """
         :param p1: initialise with 1
         :param p2: initialise with -1
         """
         self.board = Board()
-        self.gui = GUI(self.board)
+        self.ui = ui
         self.p1 = Player(1)
         # self.p2 = Player(-1)
         self.p2 = AIPlayer(-1, self.board)
@@ -53,7 +56,8 @@ class Game :
             #If player: Player input to decide position of piece to place.
             else:
                 while True:
-                    position = self.get_user_input(
+                    # position = self.get_user_input(
+                    position = self.ui.get_user_input(
                         f"{self.player_name(player)}'s turn. Choose position to place a piece ({player.pieces_in_hand} left to place)."
                     )
                     #Place piece
@@ -64,7 +68,8 @@ class Game :
             if board.check_mill(player):
                 self.handleMill(player)
 
-            board.print_board()
+            # board.print_board()
+            self.ui.display_board(board)
             player.update_state()
 
             #Switch player
@@ -91,13 +96,13 @@ class Game :
 
             if player.state == 1:
                 if isinstance(player, AIPlayer):
-                    from_pos, to_pos = player.random_move(board)
+                    from_pos, to_pos = player.get_move(board)
                     board.apply_move(player, from_pos, to_pos)
 
                 while True:
                     while True:
                         # Get user input
-                        from_pos = self.get_user_input("Select a piece to move.")
+                        from_pos = self.ui.get_user_input("Select a piece to move.")
                         if self.valid_moves_exist(from_pos):
                             break
                         # No valid move for the chosen piece; ask for new input
@@ -106,7 +111,7 @@ class Game :
 
 
                     board.get_neighbours(from_pos)
-                    to_pos = self.get_user_input("Select piece destination.")
+                    to_pos = self.ui.get_user_input("Select piece destination.")
 
                 # Check if given move is valid, else ask for different input
                     if board.check_valid_move(player, from_pos, to_pos):
@@ -116,8 +121,8 @@ class Game :
             elif player.state == 2:
                 while True:
                     # Get user input
-                    from_pos = self.get_user_input("Select a piece to move.")
-                    to_pos = self.get_user_input("Select piece destination.")
+                    from_pos = self.ui.get_user_input("Select a piece to move.")
+                    to_pos = self.ui.get_user_input("Select piece destination.")
 
                     # Check if given move is valid, else ask for different input
                     if board.check_valid_fly_move(player, from_pos, to_pos):
@@ -181,15 +186,18 @@ class Game :
     def handleMill(self, player):
         print("Please select an opponent piece to remove:")
         while True:
-            position = self.get_user_input()
+            position = self.ui.get_user_input()
             if self.board.remove_piece(position, player):
                 break
 
-game = Game()
-game.gui.window.mainloop()
-game.start_game()
+# TODO when AI creates mill, human player can choose piece to remove... implement AI piece removel correctly
+
+board = Board()
+tkinterUI = TkinterUI(board)
+game = Game(tkinterUI)
+threading.Thread(target=game.start_game).start()
+game.ui.start_ui()
 
 
 print(game.p2.ID)
 
-# TODO LEFT OFF AT TROUBLE WITH GUI MAINLOOP BLOCKING EVENTS
