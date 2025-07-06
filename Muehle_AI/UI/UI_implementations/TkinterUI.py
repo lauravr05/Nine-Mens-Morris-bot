@@ -15,6 +15,7 @@ class TkinterUI(AbstractUI):
         # Initiate values for window size
         self.window_width = 1300
         self.window_height = 900
+        self.position_var = None
 
 
         # Get the directory containing TkinterUI.py
@@ -152,8 +153,6 @@ class TkinterUI(AbstractUI):
         self.resize_job = self.window.after(100, lambda: self.display_board())
 
 
-
-
     def make_board_sunken(self, window_width, window_height):
         """
         Helper graphics function to draw the board sunken effect.
@@ -193,11 +192,11 @@ class TkinterUI(AbstractUI):
         prompt = "Choose a position: "
         print(prompt)
 
-        position = IntVar()
+        self.position_var = IntVar()
         self.canvas.bind("<Button-1>", self.on_click)
 
-        self.window.wait_variable(position)
-        return position.get()
+        self.window.wait_variable(self.position_var)
+        return self.position_var.get()
 
 
     def on_click(self, event):
@@ -208,15 +207,15 @@ class TkinterUI(AbstractUI):
         :param event: mouseclick
         :return: None
         """
-        window_x,window_y = event.x, event.y
-        board_x = window_x - self.x_board
-        board_y = window_y - self.y_board
+        board_x = event.x - self.x_board
+        board_y = event.y - self.y_board
 
 
         #TODO loop for when input is invalid?
         pos = self.get_position(board_x, board_y)
         if pos is not None:
             print(f"You clicked at ({pos})")
+            self.position_var.set(pos)
 
 
 
