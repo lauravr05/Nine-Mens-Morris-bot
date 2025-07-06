@@ -46,14 +46,11 @@ class TkinterUI(AbstractUI):
         self.resize_job = None
         self.window.bind('<Configure>', self.throttled_resize)
 
-        self.get_user_input()
+        # self.get_user_input()
 
 
+    def start_ui(self):
         self.window.mainloop()
-
-
-    # def start_ui(self):
-    #     self.window.mainloop()
 
 
     def define_position_coords(self):
@@ -243,10 +240,3 @@ class TkinterUI(AbstractUI):
         print("Instruction updated")
 
 
-
-
-
-
-board = Board()
-tkinterUI = TkinterUI(board)
-get_user_input = tkinterUI.get_user_input

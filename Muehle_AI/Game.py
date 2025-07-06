@@ -195,9 +195,10 @@ class Game :
 board = Board()
 tkinterUI = TkinterUI(board)
 game = Game(tkinterUI)
-threading.Thread(target=game.start_game).start()
-game.ui.start_ui()
+game_thread = threading.Thread(target=game.start_game, daemon=True)
+game_thread.start()
+tkinterUI.start_ui()
 
 
-print(game.p2.ID)
+# print(game.p2.ID)
 
