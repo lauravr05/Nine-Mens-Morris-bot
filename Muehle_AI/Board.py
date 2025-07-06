@@ -204,16 +204,6 @@ class Board:
 
 
 
-# board = Board()
-# p1 = Player(1)
-# p2 = Player(-1)
-# board.set_piece(p2, 5)
-# board.set_piece(p1, 8)
-# board.set_piece(p1, 6)
-# board.set_piece(p1, 7)
-# board.user_removal_input(p2)
-# board.print_board()
-
 
 
 

@@ -15,12 +15,12 @@ class Game :
         # 0 = placing pieces, initial state when beginning game
         # 1 = moving pieces; state after players have both places 9 pieces
         # 2 = flying; state after at least 1 player has 3 or less pieces
-    def __init__(self, ui : AbstractUI):
+    def __init__(self, ui : AbstractUI, board: Board):
         """
         :param p1: initialise with 1
         :param p2: initialise with -1
         """
-        self.board = Board()
+        self.board = board
         self.ui = ui
         self.p1 = Player(1)
         # self.p2 = Player(-1)
@@ -194,7 +194,7 @@ class Game :
 
 board = Board()
 tkinterUI = TkinterUI(board)
-game = Game(tkinterUI)
+game = Game(tkinterUI, board)
 game_thread = threading.Thread(target=game.start_game, daemon=True)
 game_thread.start()
 tkinterUI.start_ui()
