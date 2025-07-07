@@ -14,3 +14,5 @@ class AbstractUI(ABC):
 
     @abstractmethod
     def display_board(self, board): pass
+
+    def display_instruction(self, message): pass

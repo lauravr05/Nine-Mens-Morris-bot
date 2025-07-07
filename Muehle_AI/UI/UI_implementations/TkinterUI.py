@@ -13,8 +13,8 @@ class TkinterUI(AbstractUI):
     def __init__(self, board):
         self.board = board
         # Initiate values for window size
-        self.window_width = 1300
-        self.window_height = 900
+        self.window_width = 1000
+        self.window_height = 700
         self.position_var = None
 
 
@@ -45,8 +45,6 @@ class TkinterUI(AbstractUI):
 
         self.resize_job = None
         self.window.bind('<Configure>', self.throttled_resize)
-
-        # self.get_user_input()
 
 
     def start_ui(self):
@@ -84,15 +82,15 @@ class TkinterUI(AbstractUI):
 
 
     def display_board(self, event=None):
-        self.canvas.delete("all")
+        # self.canvas.delete("all")
 
         # Get current window size
         self.window_width = self.window.winfo_width()
         self.window_height = self.window.winfo_height()
 
         if self.window_width <= 1 or self.window_height <= 1:
-            self.window_width = 1300
-            self.window_height = 900
+            self.window_width = 1000
+            self.window_height = 700
 
 
         self.board_size = min(self.window_width, self.window_height) * 0.8      # 80% of the smaller window dimension
@@ -113,15 +111,14 @@ class TkinterUI(AbstractUI):
         self.canvas.create_image(self.x_board, self.y_board, anchor=NW, image=self.board_texture)
 
         self.draw_all_pieces()
-
         self.canvas.update()
-        print("Board updated")
 
+        # print("Board updated")
 
 
 
     def draw_all_pieces(self):
-        print("Drawing pieces: ", self.board.positions)
+        # print("Drawing pieces: ", self.board.positions)
         for position, value in enumerate(self.board.positions):
             if value == 1:
                 self._render_piece(position, colour="floral white")
@@ -143,12 +140,10 @@ class TkinterUI(AbstractUI):
             fill=colour, outline=""
         )
 
-
     def throttled_resize(self, event):
         if self.resize_job is not None:
             self.window.after_cancel(self.resize_job)
         self.resize_job = self.window.after(100, lambda: self.display_board())
-
 
     def make_board_sunken(self, window_width, window_height):
         """
@@ -185,8 +180,8 @@ class TkinterUI(AbstractUI):
             width=4
         )
 
-    def get_user_input(self, prompt : str = "Enter a position: ") -> int:
-        prompt = "Choose a position: "
+    def get_user_input(self, prompt : str) -> int:
+        self.display_instruction(prompt)
         print(prompt)
 
         self.position_var = IntVar()
@@ -207,8 +202,6 @@ class TkinterUI(AbstractUI):
         board_x = event.x - self.x_board
         board_y = event.y - self.y_board
 
-
-        #TODO loop for when input is invalid?
         pos = self.get_position(board_x, board_y)
         if pos is not None:
             print(f"You clicked at ({pos})")
@@ -233,10 +226,8 @@ class TkinterUI(AbstractUI):
         print("Invalid position")
         return None
 
-    def display_instruction(self, instruction : str = "Click position to place a piece "):
-        self.instructionLabel.config(text=instruction)
-        self.instructionLabel.pack()
-        self.window.update()
+    def display_instruction(self, instruction : str = "Do sth"):
+        self.instruction_text.set(instruction)
         print("Instruction updated")
 
 

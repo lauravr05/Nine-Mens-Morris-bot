@@ -1,5 +1,6 @@
 #TODO Should be singleton, only a single game can be running at once.
 import threading
+from time import sleep
 
 from Muehle_AI.Player.AIPlayer import AIPlayer
 from Muehle_AI.Board import Board
@@ -50,8 +51,12 @@ class Game :
 
             #If bot: choose move
             if isinstance(player, AIPlayer):
+                self.ui.display_instruction(f"{self.player_name(player)}'s turn. AI is thinking...")
+                sleep(1)
                 move = player.get_placement(board)
                 board.set_piece(player, move)
+                self.ui.display_instruction(f"{self.player_name(player)} places piece at position {move}.")
+                sleep(1)
 
             #If player: Player input to decide position of piece to place.
             else:
@@ -79,6 +84,8 @@ class Game :
 
 
     def phase_moving_pieces(self):
+        #TODO UI not properly updated when moving pieces. Add update after moving
+        #TODO checking for mmills formed
         """Phase 2: moving pieces
 
         - get user input: fromPos & toPos
@@ -96,17 +103,20 @@ class Game :
 
             if player.state == 1:
                 if isinstance(player, AIPlayer):
+                    self.ui.display_instruction(f"{self.player_name(player)}'s turn. AI is thinking...")
+                    sleep(1)
                     from_pos, to_pos = player.get_move(board)
                     board.apply_move(player, from_pos, to_pos)
 
                 while True:
                     while True:
                         # Get user input
-                        from_pos = self.ui.get_user_input("Select a piece to move.")
+                        from_pos = self.ui.get_user_input(f"{self.player_name(player)}'s turn. Choose a piece to move.")
                         if self.valid_moves_exist(from_pos):
                             break
                         # No valid move for the chosen piece; ask for new input
-                        print("No possible moves from here, try another piece.")
+                        self.ui.display_instruction("No valid move for this piece. Please select another piece.")
+                        sleep(1)
                         continue
 
 
@@ -168,29 +178,21 @@ class Game :
         return "Player 1" if player.ID == 1 else "Player 2"
 
 
-    # def get_user_input(self, prompt : str = "Enter a position: ") -> int:
-    #     print(prompt)
-    #     min_val = 0
-    #     max_val = 23
-    #     while True:
-    #         try:
-    #             position = int(input())
-    #             if position < min_val or position > max_val:
-    #                 print("Please enter a valid position (range 0-23).")
-    #                 continue
-    #             return position
-    #         except ValueError:
-    #             print("This is not a number. Try again")
-
-
     def handleMill(self, player):
-        print("Please select an opponent piece to remove:")
+        if isinstance(player, AIPlayer):
+            self.ui.display_instruction("CPU formed a mill and may remove a piece.")
+            sleep(2)
+            removed = self.p2.remove_opponent_piece(self.board, player)
+            self.ui.display_instruction(f"CPU removed piece at position:{removed}")
+            sleep(2)
+            return
+
+        #TODO is this displayboard necessary?
+        self.ui.display_board(self.board)
         while True:
-            position = self.ui.get_user_input()
+            position = self.ui.get_user_input("Please select an opponent piece to remove:")
             if self.board.remove_piece(position, player):
                 break
-
-# TODO when AI creates mill, human player can choose piece to remove... implement AI piece removel correctly
 
 board = Board()
 tkinterUI = TkinterUI(board)

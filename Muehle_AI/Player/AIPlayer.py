@@ -11,8 +11,9 @@ Plan:
     Bot calculates all possible game moves for the whole board and chooses the path that maximises
     its score for the duration of the whole game
 """
-from Muehle_AI.Player.AIStrategy import AIStrategy, RandomAI
+from Muehle_AI.Player.AIStrategy import AIStrategy
 from Muehle_AI.Player.Player import Player
+from Muehle_AI.Player.Strategies.RandomAI import RandomAI
 
 
 class AIPlayer(Player) :
@@ -31,13 +32,16 @@ class AIPlayer(Player) :
         return self.strategy.get_move(board)
 
     def remove_opponent_piece(self, board, player):
+        """"
+        Function for CPU to remove piece. If removal is successful, return position of removed piece.
+        """
         position = self.strategy.get_opponent_piece_to_remove(board, player)
         if board.remove_piece(position, player):
             print("Cpu removed", position)
-            return
+            return position
         else:
             print("Cpu could not remove piece")
-            return
+            return None
 
 
 

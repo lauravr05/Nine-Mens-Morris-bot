@@ -1,4 +1,3 @@
-tart out with board:
 
    0------------1------------2
    |   3--------4--------5   |
@@ -15,22 +14,14 @@ tart out with board:
 - position states:
     0 = empty
     1 = player 1
-    -1 = player 2
+   -1 = player 2
 
 PHASE 1: PLACING PIECES
-
 
 
 PHASE 2: MOVING PIECES
 
 
-
-
-PHASE 3: FLYING
-
-Players have variables:
-- pieces = 9. Initial amount of pieces given to player before start of game. these need to be placed on board, -1 with every piece placed (phase 1)
-- piecesOnBoard = 0. Initial nr op pieces placed on board. +1 with evey piece placed (in phase 1). With every piece taken by opponent, -1 (phase 2)
-- state = 0. Initial gamestate is 0, meaning setting pieces on board. State defined the allowed movements of player. When 'pieces' variable reaches 0, switch
-    to state 1 (moving pieces). When 'piecesOnBoard' variable reaches 3 while in phase 1, switch to phase 2 (flying)
--
+BUGS:
+- p1 mill on 0,9,21,  3,10,18    6,11,15   - middle piece switching between the mills
+    all mills get registered, except when middle piece moves from 9 to 10; mill 3,10,18 does not get registered.

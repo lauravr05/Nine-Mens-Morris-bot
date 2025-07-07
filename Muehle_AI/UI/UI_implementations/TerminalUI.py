@@ -23,3 +23,5 @@ class TerminalUI(AbstractUI):
 
     def display_board(self):
         self.board.print_board()
+
+    def display_info(self, info : str): print(info)
